@@ -184,8 +184,8 @@ UPROGS=\
 	_sleep\
 	_uniq\
 
-fs.img: mkfs README TEST $(UPROGS)
-	./mkfs fs.img README TEST $(UPROGS)
+fs.img: mkfs README TEST OS6611_example.txt $(UPROGS)
+	./mkfs fs.img README TEST OS6611_example.txt $(UPROGS)
 
 -include *.d
 
@@ -198,7 +198,7 @@ clean:
 
 # make a printout
 FILES = $(shell grep -v '^\#' runoff.list)
-PRINT = runoff.list runoff.spec README TEST toc.hdr toc.ftr $(FILES)
+PRINT = runoff.list runoff.spec README TEST OS6611_example.txt toc.hdr toc.ftr $(FILES)
 
 xv6.pdf: $(PRINT)
 	./runoff
@@ -253,7 +253,7 @@ EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\
-	README TEST dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
+	README TEST OS6611_example.txt dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 
 dist:

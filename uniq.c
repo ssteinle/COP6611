@@ -130,14 +130,12 @@ char uniq_read(int fd, int count, int only_same, int ignore_case){
                     }
                 }
             }
-            //printf(1,"\n");
             exit();
         }
 
         while(*buf_ptr != 0){
             printf(1,"%c",*buf_ptr++);
         }
-        //printf(1,"\n");
         close(fd);
         exit();
     }
