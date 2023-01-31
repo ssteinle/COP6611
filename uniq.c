@@ -73,15 +73,32 @@ char remove_duplicate(char* str, int ignore_case){
                 compare2++;
             }
 
-            if(*str == '\n' && *compare2 != '\n'){
-                compare1--;
-            }
-
+            //if(*str == '\n' && *compare2 != '\n'){
+                //compare1--;
+            //}
+            
+            int times1 = 0;
+            int times2 = 0;
+            int keep = 1;
             while(*compare2 != 0 && *compare2 != '\n'){
+
+                if(*str != '\n' && keep == 1){
+                    times1++;
+                }
+                else{
+                    keep = 0;
+                }
+
                 *str = *compare2;
                 str++;
                 compare2++;
-
+                times2++;
+            }
+            if(times1 < times2){
+                while(times1 >= 0){
+                    compare1--;
+                    times1--;
+                }
             }
             compare2++;
             while(*str != 0 && *str != '\n'){
@@ -130,12 +147,14 @@ char uniq_read(int fd, int count, int only_same, int ignore_case){
                     }
                 }
             }
+            //printf(1,"\n");
             exit();
         }
 
         while(*buf_ptr != 0){
             printf(1,"%c",*buf_ptr++);
         }
+        //printf(1,"\n");
         close(fd);
         exit();
     }
