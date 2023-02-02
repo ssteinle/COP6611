@@ -3,8 +3,6 @@
 #include "user.h"
 #include "fs.h"
 
-
-
 char*
 fmtname(char *path, int type)
 {
@@ -20,9 +18,6 @@ fmtname(char *path, int type)
     return p;
   memmove(buf, p, strlen(p));
   
-  
-  
-
   if (type==1){
         memset(buf+strlen(p), '/', 1*sizeof(char));
         memset(buf+strlen(p)+1, ' ', DIRSIZ-strlen(p));
@@ -31,8 +26,6 @@ fmtname(char *path, int type)
         memset(buf+strlen(p), ' ', 1*sizeof(char));
         memset(buf+strlen(p)+1, ' ', DIRSIZ-strlen(p));
     }
-
-
   return buf;
 }
 
@@ -115,7 +108,6 @@ main(int argc, char *argv[])
     ls(".", hidden);
     exit();
   }
-
 
   for(i=path_start; i<argc; i++){
 
