@@ -72,10 +72,6 @@ char remove_duplicate(char* str, int ignore_case){
                 }
                 compare2++;
             }
-
-            //if(*str == '\n' && *compare2 != '\n'){
-                //compare1--;
-            //}
             
             int times1 = 0;
             int times2 = 0;
