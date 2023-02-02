@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_sleep\
 	_uniq\
+	_find\
 
 fs.img: mkfs README TEST OS6611_example.txt $(UPROGS)
 	./mkfs fs.img README TEST OS6611_example.txt $(UPROGS)
