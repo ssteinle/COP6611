@@ -4,11 +4,12 @@
 
 int main(int argc, char *argv[]) {
 
+    // Print error if no time is given:
 	if (argc < 2){
-		printf(1, "Enter time in milliseconds...\n");
+		printf(1, "Enter a time in milliseconds...\n");
 		exit();
 	}
-	
+	// Run sleep function for given time
     int time = atoi(argv[1]);
 	if (time > 0){
 

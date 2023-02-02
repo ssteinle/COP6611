@@ -19,7 +19,7 @@ char* fmtname(char *path, int type)
         return p;
 
     memmove(buf, p, strlen(p));
-
+    // Check type and add / if folder:
     if (type==1){
         memset(buf+strlen(p), '/', 1*sizeof(char));
         memset(buf+strlen(p)+1, ' ', DIRSIZ-strlen(p));
@@ -75,7 +75,7 @@ void ls(char *path, int show_hidden)
                     printf(1, "ls: cannot stat %s\n", buf);
                     continue;
                 }
-
+                // Show hidden files and folders:
                 switch(show_hidden){
                     case 0:
                         if (fmtname(buf,st.type)[0] != 46 || st.ino == 1){
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     int min = 2;
     int path_start = 1;
     int hidden = 0;
-
+    // Show hidden files.
     if(strcmp(argv[1], "-a") == 0){
         hidden = 1;
         path_start = 2;
