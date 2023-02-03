@@ -149,7 +149,7 @@ char uniq_read(int fd, int count, int only_same, int ignore_case){
             for(j=0;j<sizeof(times) && times[j] != 0;j++){
                 // print count while count == 1
                 if (count == 1){
-                    printf(1, "        %d ",times[j]);
+                    printf(1, "      %d ",times[j]);
                 }
                 // print out sentences inside buf
                 while(*buf_ptr != 0){
