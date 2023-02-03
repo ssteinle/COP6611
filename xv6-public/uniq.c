@@ -72,10 +72,6 @@ char remove_duplicate(char* str, int ignore_case){
                 }
                 compare2++;
             }
-
-            //if(*str == '\n' && *compare2 != '\n'){
-                //compare1--;
-            //}
             
             int times1 = 0;
             int times2 = 0;
@@ -169,7 +165,6 @@ int main(int argc, char* argv[]){
     int ignore_case = 0;
 
     if(argc < 2){
-        //printf(1,"Sorry your input isn't correct");
         uniq_read(0,count, only_same, ignore_case);
     }
     if(argc == 2){
