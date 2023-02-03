@@ -3,6 +3,8 @@
 #include "user.h"
 #include "fs.h"
 
+// Copied from our ls command
+// Performs name formatting and some overflow checking
 char* fmtname(char *path, int type)
 {
     static char buf[DIRSIZ+1];
@@ -31,6 +33,8 @@ char* fmtname(char *path, int type)
     return buf;
 }
 
+// Heart of the find command
+// Finds files and directories modified by several possible flags
 void find(char *path, char *searchTerm, char* flag, char* flagArg)
 {
     char buf[512], *p;
@@ -54,6 +58,7 @@ void find(char *path, char *searchTerm, char* flag, char* flagArg)
     p = buf+strlen(buf);
     *p++ = '/';
 
+    // Reads current directory and iterates through objects inside
     while(read(fd, &de, sizeof(de)) == sizeof(de)){
         if(de.inum == 0)
             continue;
@@ -66,7 +71,7 @@ void find(char *path, char *searchTerm, char* flag, char* flagArg)
             continue;
         }
 
-        // printf(1, "%s - %s\n", p, searchTerm);
+        // Checks the passed flag and argument, then prints objects that match the requirements
         if ((fmtname(buf,st.type)[0] != 46 || st.ino == 1) && ((strcmp(p, searchTerm) == 0) || (strcmp("*", searchTerm) == 0))){
             if((strcmp(flag, "*") == 0) && (strcmp(flagArg, "*") == 0))
             {
@@ -95,6 +100,7 @@ void find(char *path, char *searchTerm, char* flag, char* flagArg)
                 int argHook = 0;
                 char * sizeNum;
 
+                // Interprets the size argument
                 if((flagArg[0] == '-'))
                 {
                     argHook = 1;
@@ -110,6 +116,7 @@ void find(char *path, char *searchTerm, char* flag, char* flagArg)
                     sizeNum = flagArg;
                 }
 
+                // Checks to make sure the size argument is actually an integer
                 for(int i=0; i<(strlen(sizeNum)); i++)
                 {
                     if((sizeNum[i] < '0') || (sizeNum[i] > '9')) 
@@ -119,8 +126,7 @@ void find(char *path, char *searchTerm, char* flag, char* flagArg)
                     }
                 }
 
-                // printf(1, "arghook: %d -- atoi(sizeNum): %d\n", argHook, atoi(sizeNum));
-
+                // Prints out objects that meet the size requirement
                 if((argHook == 0) && (atoi(sizeNum) == st.size))
                 {
                     printf(1, "%s/%s\n", path, fmtname(buf,st.type));                                                        
@@ -141,36 +147,30 @@ void find(char *path, char *searchTerm, char* flag, char* flagArg)
             }
         }
 
+        // Checks if the object is a new directory and creates a new path for a recursive find operation to investigate
         if((st.type == 1) && (strcmp(p, ".") != 0) && (strcmp(p, "..") != 0))
         {
-            // printf(1, "%s/%s\n", path, p);
-            // printf(1, "%s\n", fmtname(buf,st.type));
             int lenDir = strlen(p);
             int lenPath = strlen(path);
 
-            // printf(1, "Path: %s (%d) -- Dir: %s (%d)\n", path, lenPath, p, lenDir);
             char dest[lenDir + lenPath + 1];
 
             for(int i=0; i<lenPath; i++)
             {
-                // printf(1, "%c : %c\n", dest[i], path[i]);
                 dest[i] = path[i];
             }
 
             dest[lenPath] = '/';
 
+            // Appends the directory with the path
             for(int i=0; i<lenDir; i++)
             {
-                // printf(1, "%c : %c\n", dest[lenPath + 1 + i], p[i]);
                 dest[lenPath + 1 + i] = p[i];
             }
 
             dest[lenPath + 1 + lenDir] = '\0';      
 
-            // printf(1, "New Path: %s\n", &dest);
-
-            // // strcat(dest, p);
-            // // printf(1, "%s\n", dest);
+            // Searches the found directory
             find(dest, searchTerm, flag, flagArg);
         }
     }
@@ -185,6 +185,7 @@ int main(int argc, char *argv[])
     char * flag;
     char * flagArg;
 
+    // Accounts for various combinations of arguments
     if(argc == 6)
     {
         rootDir = argv[1];
@@ -282,24 +283,7 @@ int main(int argc, char *argv[])
         exit();
     }
  
-    // if((strcmp(flag, "*") != 0) && (strcmp(flagArg, "*") != 0))
-    // {    
-    //     if((strcmp(flag, "-type") != 0) && (strcmp(flag, "-size") != 0))
-    //     {
-    //         printf(1, "Error: Bad flag\n");
-    //         exit();
-    //     }
-    
-    //     if((strcmp(flag, "-type") == 0))
-    //     {
-    //         if((strcmp(flagArg, "f") != 0) && (strcmp(flagArg, "d") != 0))
-    //         {
-    //             printf(1, "Error: Bad flag argument\n");
-    //             exit();
-    //         }
-    //     }
-    // }
- 
+    // Removes attached / from the path for uniform processing
     if(strcmp(&rootDir[strlen(rootDir) - 1], "/") == 0)
     {
         rootDir[strlen(rootDir) - 1] = '\0';
