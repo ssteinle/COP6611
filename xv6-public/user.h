@@ -24,6 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int uniq(int);
+int time_scheduled(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

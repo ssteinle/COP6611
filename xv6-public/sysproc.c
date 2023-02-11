@@ -101,5 +101,11 @@ sys_uniq(void)
 } 
 
 
+int 
+sys_time_scheduled(void) 
+{
+    // uniq();
+    return 0;
+} 
 
 
