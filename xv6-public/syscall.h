@@ -22,3 +22,4 @@
 #define SYS_close  21
 #define SYS_uniq   22
 #define SYS_time_scheduled   23
+#define SYS_cps    24
