@@ -105,6 +105,7 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_uniq(void);
 extern int sys_time_scheduled(void);
+extern int sys_cps(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,6 +131,7 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_uniq]    sys_uniq,
 [SYS_time_scheduled] sys_time_scheduled,
+[SYS_cps]     sys_cps,
 };
 
 void
