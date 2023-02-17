@@ -109,3 +109,8 @@ sys_time_scheduled(void)
 } 
 
 
+int
+sys_cps(void)
+{
+  return cps();
+}
