@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int uniq(int);
 int time_scheduled(int);
+int cps(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
