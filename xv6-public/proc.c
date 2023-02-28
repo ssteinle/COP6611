@@ -88,8 +88,10 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 5;
 
   p->ctime = ticks;
+  p->rtime = 0;
 
   release(&ptable.lock);
 
@@ -329,9 +331,15 @@ scheduler(void)
 {
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
+  //cprintf("%s", "\n");
+  //cprintf("%s", "out of for(;;) loop \n");
+  //cprintf("%s", "\n");
 
   for(;;){
+
+    //cprintf("%s", "inside of for(;;) loop \n");
+
     // Enable interrupts on this processor.
     sti();
 
@@ -350,12 +358,11 @@ scheduler(void)
     //   to release ptable.lock and then reacquire it
     //   before jumping back to us.
 
-
-
-
     c->proc = p;
     switchuvm(p);
     p->state = RUNNING;
+
+    //cprintf("DEFAULT: The start time of current process is %d \n", p->ctime);
 
     swtch(&(c->scheduler), p->context);
     switchkvm();
@@ -389,6 +396,7 @@ scheduler(void)
         // Switch to chosen process.  It is the process's job
         // to release ptable.lock and then reacquire it
         // before jumping back to us.
+        //cprintf("FIFO: The start time of current process is %d \n", minP->ctime);
         c->proc = minP;
         switchuvm(minP);
         minP->state = RUNNING;
@@ -400,12 +408,42 @@ scheduler(void)
         // It should have changed its p->state before coming back.
         c->proc = 0;
     }
+    #else
+
+    #ifdef PRIORITY
+    struct proc *p, *p1;
+    struct proc *highP;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
+        continue;
+
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      highP = p;
+      //choose one with highest priority
+      for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+    if(p1->state != RUNNABLE)
+      continue;
+    if(highP->priority > p1->priority)   //larger value, lower priority
+      highP = p1;
+      }
+      p = highP;
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    }
+
     #endif
     #endif
-
-
-
-
+    #endif
 
     release(&ptable.lock);
 
@@ -588,4 +626,100 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int
+cps()
+{
+struct proc *p;
+//Enables interrupts on this processor.
+sti();
+
+//Loop over process table looking for process with pid.
+acquire(&ptable.lock);
+cprintf("name \t pid \t state \t priority \n");
+for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+  if(p->state == SLEEPING)
+	  cprintf("%s \t %d \t SLEEPING \t %d \n ", p->name,p->pid,p->priority);
+	else if(p->state == RUNNING)
+ 	  cprintf("%s \t %d \t RUNNING \t %d \n ", p->name,p->pid,p->priority);
+	else if(p->state == RUNNABLE)
+ 	  cprintf("%s \t %d \t RUNNABLE \t %d \n ", p->name,p->pid,p->priority);
+}
+release(&ptable.lock);
+return 22;
+}
+
+int 
+chpr(int pid, int priority)
+{
+	struct proc *p;
+	acquire(&ptable.lock);
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+	  if(p->pid == pid){
+			p->priority = priority;
+			break;
+		}
+	}
+	release(&ptable.lock);
+	return pid;
+}
+
+int
+get_sched_priority(int pid){
+    struct proc *p;
+    //Enables interrupts on this processor.
+    sti();
+
+    //Loop over process table looking for process with pid.
+    acquire(&ptable.lock);
+    //cprintf("name \t pid \t state \t priority \n");
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->pid == pid){
+            cprintf(" The priority of given PID: %d \t is: \t %d \n ", p->pid,p->priority);
+            release(&ptable.lock);
+	    return p->priority;
+        }
+    }
+    release(&ptable.lock);
+    return -1;
+}
+
+void
+set_sched_priority(int priority){
+    struct proc *p;
+    //Enables interrupts on this processor.
+    sti();
+
+    //Loop over process table looking for process with pid.
+    acquire(&ptable.lock);
+    //cprintf("name \t pid \t state \t priority \n");
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->state == RUNNING){
+	    p->priority = priority;
+            cprintf(" The prioroty of process %d \t has been set to: \t %d \n ", p->pid, p->priority);
+        }
+    }
+    release(&ptable.lock);
+    int i;
+    for(i = 0; i < 10000000; i++){
+	i = i + 1;
+    }
+}
+
+int
+time_scheduled(int pid){
+   cprintf(" time scheduled funciton");
+   struct proc *p;
+   int savetime = 0;
+   acquire(&ptable.lock);
+   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+	if(p->pid == pid && p->state == RUNNING){
+	    p->rtime++;
+	    savetime = p->rtime;
+        }
+   }
+   cprintf(" The priority of given PID: %d \t is: \t %d \n ", pid, savetime);
+   release(&ptable.lock);
+   return savetime;
 }
