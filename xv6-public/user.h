@@ -26,6 +26,10 @@ int uptime(void);
 int uniq(int);
 int time_scheduled(int);
 int cps(void);
+int chpr(int pid, int priority);
+int get_sched_priority(int pid);
+void set_sched_priority(int priority);
+int time_scheduled(int pid);
 
 // ulib.c
 int stat(const char*, struct stat*);
