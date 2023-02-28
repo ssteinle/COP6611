@@ -23,3 +23,6 @@
 #define SYS_uniq   22
 #define SYS_time_scheduled   23
 #define SYS_cps    24
+#define SYS_chpr   25
+#define SYS_get_sched_priority   26
+#define SYS_set_sched_priority   27
