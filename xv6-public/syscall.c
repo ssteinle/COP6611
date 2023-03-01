@@ -99,6 +99,7 @@ extern int sys_pipe(void);
 extern int sys_read(void);
 extern int sys_sbrk(void);
 extern int sys_sleep(void);
+extern int sys_time_scheduled(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
