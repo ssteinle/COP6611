@@ -95,7 +95,7 @@ void ls(char *path, int show_hidden)
 
 int main(int argc, char *argv[])
 {
-    SYS_time_scheduled(5);
+    time_scheduled(5);
     // int i;
     // int min = 2;
     // int path_start = 1;
