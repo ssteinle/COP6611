@@ -100,6 +100,10 @@ sys_uniq(void)
     return 0;
 } 
 
-
-
+int
+sys_time_scheduled(pid)
+{
+  printf("Catnip!");
+  return 0;
+}
 
