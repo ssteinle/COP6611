@@ -90,8 +90,9 @@ found:
   p->pid = nextpid++;
   p->priority = 5;
 
-  p->ctime = ticks;
-  p->rtime = 0;
+  acquire(&tickslock);
+  p->rtime = ticks;
+  release(&tickslock);
 
   release(&ptable.lock);
 
@@ -345,8 +346,6 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-
-
 
     #ifdef DEFAULT
     // cprintf("%s","DEFAULT Running...");
@@ -740,8 +739,12 @@ time_scheduled(int pid)
     {
       if (p->state == RUNNING)
       {
+        acquire(&tickslock);
+        uint xticks = ticks;
+        release(&tickslock);
+
         release(&ptable.lock);
-        return p->rtime;
+        return xticks - p->rtime;
       }
       else
       {
