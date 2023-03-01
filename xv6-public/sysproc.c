@@ -101,8 +101,15 @@ sys_uniq(void)
 } 
 
 int
-sys_time_scheduled(int pid)
+sys_time_scheduled(void)
 {
-  return pid;
-}
+  int pid;
 
+  argint(0, &pid);
+
+  int ret_pid;
+
+  ret_pid = time_scheduled(pid);
+
+  return ret_pid;
+}

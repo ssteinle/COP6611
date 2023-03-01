@@ -95,27 +95,25 @@ void ls(char *path, int show_hidden)
 
 int main(int argc, char *argv[])
 {
-    int myTime = time_scheduled(5);
-    printf(1, "%d", myTime);
-    // int i;
-    // int min = 2;
-    // int path_start = 1;
-    // int hidden = 0;
-    // // Show hidden files.
-    // if(strcmp(argv[1], "-a") == 0){
-    //     hidden = 1;
-    //     path_start = 2;
-    //     min = 3;
-    // }
+    int i;
+    int min = 2;
+    int path_start = 1;
+    int hidden = 0;
+    // Show hidden files.
+    if(strcmp(argv[1], "-a") == 0){
+        hidden = 1;
+        path_start = 2;
+        min = 3;
+    }
 
-    // if(argc < min){
-    //     ls(".", hidden);
-    // }
-    // else{
-    //     for(i=path_start; i<argc; i++){
-    //         ls(argv[i], hidden);
-    //     }
-    // }
+    if(argc < min){
+        ls(".", hidden);
+    }
+    else{
+        for(i=path_start; i<argc; i++){
+            ls(argv[i], hidden);
+        }
+    }
 
     exit();
 }
