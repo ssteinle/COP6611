@@ -100,16 +100,57 @@ sys_uniq(void)
     return 0;
 } 
 
-int
-sys_time_scheduled(void)
+int 
+sys_time_scheduled(void) 
 {
   int pid;
-
-  argint(0, &pid);
+  if(argint(0, &pid) < 0)
+    return -1;
 
   int ret_pid;
-
+  
   ret_pid = time_scheduled(pid);
 
   return ret_pid;
+
+} 
+
+
+int
+sys_cps(void)
+{
+  return cps();
+}
+
+int
+sys_chpr(void)
+{
+  int pid, pr;
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argint(1, &pr) < 0)
+    return -1;
+
+  return chpr(pid, pr);
+}
+
+int
+sys_get_sched_priority(void)
+{
+  int pid;
+  if(argint(0, &pid) < 0)
+    return -1;
+
+  return get_sched_priority(pid);
+}
+
+int
+sys_set_sched_priority(void)
+{
+  int priority;
+  if(argint(0, &priority) < 0)
+    return -1;
+
+  set_sched_priority(priority);
+  return 0;
 }
