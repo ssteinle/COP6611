@@ -90,10 +90,6 @@ found:
   p->pid = nextpid++;
   p->priority = 5;
 
-  acquire(&tickslock);
-  p->rtime = ticks;
-  release(&tickslock);
-
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -116,6 +112,12 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  acquire(&tickslock);
+  uint xticks = ticks;
+  release(&tickslock);
+
+  p->stime = xticks;
 
   return p;
 }
@@ -361,14 +363,43 @@ scheduler(void)
     switchuvm(p);
     p->state = RUNNING;
 
+    release(&ptable.lock);
+
+    uint sched_time = time_scheduled(p->pid);
+    if (sched_time == -1)
+    {
+        //print error if we want
+        p->rtime = 0;
+    }
+
+    p->ctime = p->ctime + p->rtime;
+
+    uint ct = p->ctime;
+    uint rt = p->rtime;
+    int pppid = p -> pid;
+
+    p->rtime = 0;
+
+    acquire(&ptable.lock);
+
     //cprintf("DEFAULT: The start time of current process is %d \n", p->ctime);
 
     swtch(&(c->scheduler), p->context);
     switchkvm();
 
+    acquire(&tickslock);
+    p->rtime = ticks;
+    release(&tickslock);
+
+    cprintf("Process ID: %d -- ", pppid);
+    cprintf("Run time: %d -- ", rt);
+    cprintf("Total run time: %d\n", ct);
+
+
     // Process is done running for now.
     // It should have changed its p->state before coming back.
     c->proc = 0;
+    
     }
 
     #else
@@ -399,13 +430,52 @@ scheduler(void)
         c->proc = minP;
         switchuvm(minP);
         minP->state = RUNNING;
+
+        release(&ptable.lock);
+
+
+        acquire(&tickslock);
+        p->rtime = ticks;
+        release(&tickslock);
+
+
+
+        uint sched_time = time_scheduled(p->pid);
+        if (sched_time == -1)
+        {
+            //print error if we want
+            p->rtime = 0;
+        }
+        // const int aa = p ->ctime;
+        // aa = p ->ctime;
+        p->ctime = p->ctime + p->rtime;
+
+        // uint ct = p->ctime;
+        uint rt = p->rtime;
+        int pppid = p -> pid;
+
+        // p->rtime = 0;
+
+        acquire(&ptable.lock);
+
         // cprintf("cpu %d, pname %s, pid %d, rtime %d\n", c->apicid, minP->name, minP->pid, minP->rtime);
         swtch(&(c->scheduler), minP->context);
         switchkvm();
 
+
+        cprintf("Process ID: %d -- ", pppid);
+        cprintf("Run time: %d -- ", rt);
+        // int subt;
+        // cprintf("Ticks time: %d -- ", ticks);
+        // subt = ct-;
+        // cprintf("AA time: %d -- ", aa);
+        // cprintf("Total run time: %d\n", subt);
+
+
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
+        // release(&ptable.lock);
     }
     #else
 
@@ -431,10 +501,40 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-      p->runtime = 0;
+    //   p->rtime = 0;
+
+      release(&ptable.lock);
+    
+      uint sched_time = time_scheduled(p->pid);
+      if (sched_time == -1)
+      {
+        //print error if we want
+        p->rtime = 0;
+      }
+
+      p->ctime = p->ctime + p->rtime;
+
+      uint ct = p->ctime;
+      uint rt = p->rtime;
+      int pppid = p -> pid;
+
+
+      p->rtime = 0;
+
+      acquire(&ptable.lock);
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
+
+      acquire(&tickslock);
+      p->rtime = ticks;
+      release(&tickslock);
+
+
+      cprintf("Process ID: %d -- ", pppid);
+      cprintf("Run time: %d -- ", rt);
+      cprintf("Total run time: %d\n", ct);
+
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
@@ -444,7 +544,6 @@ scheduler(void)
     #endif
     #endif
     #endif
-
     release(&ptable.lock);
 
   }
