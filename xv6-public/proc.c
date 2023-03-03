@@ -90,6 +90,10 @@ found:
   p->pid = nextpid++;
   p->priority = 5;
 
+  p->stime = ticks;
+  p->rtime = 0;
+  p->ctime = 0;
+
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -113,14 +117,22 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
-  acquire(&tickslock);
-  uint xticks = ticks;
-  release(&tickslock);
-
-  p->stime = xticks;
-
   return p;
 }
+
+
+void update_process_time() {
+    acquire(&ptable.lock);
+    struct proc* p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state == RUNNING)
+            p->rtime++;
+        //else if (p->state == SLEEPING)
+        //    p->iotime++;
+    }
+    release(&ptable.lock);
+}
+
 
 //PAGEBREAK: 32
 // Set up first user process.
@@ -374,9 +386,9 @@ scheduler(void)
 
     p->ctime = p->ctime + p->rtime;
 
-    uint ct = p->ctime;
-    uint rt = p->rtime;
-    int pppid = p -> pid;
+    // uint ct = p->ctime;
+    // uint rt = p->rtime;
+    // int pppid = p -> pid;
 
     p->rtime = 0;
 
@@ -391,9 +403,9 @@ scheduler(void)
     p->rtime = ticks;
     release(&tickslock);
 
-    cprintf("Process ID: %d -- ", pppid);
-    cprintf("Run time: %d -- ", rt);
-    cprintf("Total run time: %d\n", ct);
+    // cprintf("Process ID: %d -- ", pppid);
+    // cprintf("Run time: %d -- ", rt);
+    // cprintf("Total run time: %d\n", ct);
 
 
     // Process is done running for now.
@@ -463,8 +475,8 @@ scheduler(void)
         switchkvm();
 
 
-        cprintf("Process ID: %d -- ", pppid);
-        cprintf("Run time: %d -- ", rt);
+        // cprintf("Process ID: %d -- ", pppid);
+        // cprintf("Run time: %d -- ", rt);
         // int subt;
         // cprintf("Ticks time: %d -- ", ticks);
         // subt = ct-;
@@ -531,9 +543,9 @@ scheduler(void)
       release(&tickslock);
 
 
-      cprintf("Process ID: %d -- ", pppid);
-      cprintf("Run time: %d -- ", rt);
-      cprintf("Total run time: %d\n", ct);
+    //   cprintf("Process ID: %d -- ", pppid);
+    //   cprintf("Run time: %d -- ", rt);
+    //   cprintf("Total run time: %d\n", ct);
 
 
       // Process is done running for now.
@@ -728,35 +740,34 @@ procdump(void)
 }
 
 int
-cps()
+sps()
 {
-  struct proc *p;
-  //Enables interrupts on this processor.
-  sti();
+struct proc *p;
+sti();
 
-  //Loop over process table looking for process with pid.
-  acquire(&ptable.lock);
-  cprintf("name \t pid \t state \t priority \n");
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state == SLEEPING)
-      cprintf("%s \t %d \t SLEEPING \t %d \n ", p->name,p->pid,p->priority);
-    else if(p->state == RUNNING)
-      cprintf("%s \t %d \t RUNNING \t %d \n ", p->name,p->pid,p->priority);
-    else if(p->state == RUNNABLE)
-      cprintf("%s \t %d \t RUNNABLE \t %d \n ", p->name,p->pid,p->priority);
-  }
-  release(&ptable.lock);
-  return 22;
+//go through ptable and print out process name, id and priority
+acquire(&ptable.lock);
+cprintf("name \t pid \t state \t priority \n");
+for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+  if(p->state == SLEEPING)
+	  cprintf("%s \t %d \t SLEEPING \t %d \n ", p->name,p->pid,p->priority);
+	else if(p->state == RUNNING)
+ 	  cprintf("%s \t %d \t RUNNING \t %d \n ", p->name,p->pid,p->priority);
+	else if(p->state == RUNNABLE)
+ 	  cprintf("%s \t %d \t RUNNABLE \t %d \n ", p->name,p->pid,p->priority);
+}
+release(&ptable.lock);
+return 34;
 }
 
 int 
-chpr(int pid, int priority)
+chprio(int pid, int prio)
 {
 	struct proc *p;
 	acquire(&ptable.lock);
 	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 	  if(p->pid == pid){
-			p->priority = priority;
+			p->priority = prio;
 			break;
 		}
 	}
@@ -807,21 +818,44 @@ set_sched_priority(int priority){
 }
 
 // int
-// time_scheduled(int pid){
-//    cprintf(" time scheduled funciton");
-//    struct proc *p;
-//    int savetime = 0;
-//    acquire(&ptable.lock);
-//    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-// 	if(p->pid == pid && p->state == RUNNING){
-// 	    p->rtime++;
-// 	    savetime = p->rtime;
+// time_scheduled(int pid) {
+//     cprintf(" time scheduled funciton");
+//     struct proc* p;
+//     int savetime = 0;
+
+//     acquire(&ptable.lock);
+//     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+//         if (p->pid == pid && p->state == RUNNING) {
+//             p->rtime++;
+//             cprintf("the name of the process is: %s ,", p->name);
+//             savetime = p->rtime;
 //         }
-//    }
-//    cprintf(" The priority of given PID: %d \t is: \t %d \n ", pid, savetime);
-//    release(&ptable.lock);
-//    return savetime;
+//     }
+//     cprintf(" it's PID is: %d , it's runing time is: %d \n ", pid, savetime);
+//     release(&ptable.lock);
+//     return savetime;
 // }
+
+int
+fifo_position(int pid) {
+    cprintf("fifo position funciton. \n");
+    struct proc* p;
+    int current_position = 0;
+
+    acquire(&ptable.lock);
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+	current_position = current_position + 1;
+        if (p->pid == pid) {
+            release(&ptable.lock);
+	    //cprintf("the position of the process is: %d \n", current_position);
+	    return current_position;
+        }
+    }
+    cprintf("the process is not in ptable. \n ");
+    return -1;
+}
+
+
 
 int
 time_scheduled(int pid)

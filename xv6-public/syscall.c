@@ -99,17 +99,17 @@ extern int sys_pipe(void);
 extern int sys_read(void);
 extern int sys_sbrk(void);
 extern int sys_sleep(void);
-extern int sys_time_scheduled(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_uniq(void);
 extern int sys_time_scheduled(void);
-extern int sys_cps(void);
-extern int sys_chpr(void);
+extern int sys_sps(void);
+extern int sys_chprio(void);
 extern int sys_get_sched_priority(void);
 extern int sys_set_sched_priority(void);
+extern int sys_fifo_position(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -135,10 +135,11 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_uniq]    sys_uniq,
 [SYS_time_scheduled] sys_time_scheduled,
-[SYS_cps]     sys_cps,
-[SYS_chpr]     sys_chpr,
+[SYS_sps]     sys_sps,
+[SYS_chprio]     sys_chprio,
 [SYS_get_sched_priority]     sys_get_sched_priority,
 [SYS_set_sched_priority]     sys_set_sched_priority,
+[SYS_fifo_position]     sys_fifo_position,
 };
 
 void

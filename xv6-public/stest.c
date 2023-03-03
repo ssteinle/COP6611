@@ -6,7 +6,7 @@
 int
 main(int argc, char *argv[])
 {
-
+  //int id = 0;
   if(argc < 2){
         printf(2,"Invalid input. \n");
   }
@@ -17,8 +17,16 @@ main(int argc, char *argv[])
         set_sched_priority(10);
   }
   if(strcmp(argv[1], "time") == 0){
+      //if (strcmp(argv[2], "stressfs") == 0) {
+      
+      //}
 	time_scheduled(11);
   }
-  cps();
+  if(strcmp(argv[1], "position") == 0){
+	int po = 0;
+  	po = fifo_position(2);
+	printf(2,"when pid is 2, the positon is: %d \n", po);
+  }
+  sps();
   exit();
 }

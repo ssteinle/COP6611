@@ -116,16 +116,17 @@ void            scheduler(void) __attribute__((noreturn));
 void            sched(void);
 void            setproc(struct proc*);
 void            sleep(void*, struct spinlock*);
-int             time_scheduled(int);
 void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-int		cps(void);
-int             chpr(int pid, int priority);
+int		sps(void);
+int             chprio(int pid, int prio);
 int		get_sched_priority(int pid);
 void            set_sched_priority(int priority);
 int		time_scheduled(int pid);
+int		fifo_position(int pid);
+void		update_process_time();
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -100,38 +100,34 @@ sys_uniq(void)
     return 0;
 } 
 
+
 int 
 sys_time_scheduled(void) 
 {
-  int pid;
-  if(argint(0, &pid) < 0)
-    return -1;
+    int pid;
+    if(argint(0, &pid) < 0)
+      return -1;
 
-  int ret_pid;
-  
-  ret_pid = time_scheduled(pid);
-
-  return ret_pid;
-
+    return time_scheduled(pid);
 } 
 
 
 int
-sys_cps(void)
+sys_sps(void)
 {
-  return cps();
+  return sps();
 }
 
 int
-sys_chpr(void)
+sys_chprio(void)
 {
-  int pid, pr;
+  int pid, prio;
   if(argint(0, &pid) < 0)
     return -1;
-  if(argint(1, &pr) < 0)
+  if(argint(1, &prio) < 0)
     return -1;
 
-  return chpr(pid, pr);
+  return chprio(pid, prio);
 }
 
 int
@@ -153,4 +149,14 @@ sys_set_sched_priority(void)
 
   set_sched_priority(priority);
   return 0;
+}
+
+int
+sys_fifo_position(void)
+{
+  int pid;
+  if(argint(0, &pid) < 0)
+    return -1;
+
+  return fifo_position(pid);
 }

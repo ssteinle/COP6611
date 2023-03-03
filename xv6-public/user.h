@@ -25,11 +25,12 @@ int sleep(int);
 int uptime(void);
 int uniq(int);
 int time_scheduled(int);
-int cps(void);
-int chpr(int pid, int priority);
+int sps(void);
+int chprio(int pid, int prio);
 int get_sched_priority(int pid);
 void set_sched_priority(int priority);
 int time_scheduled(int pid);
+int fifo_position(int pid);
 
 // ulib.c
 int stat(const char*, struct stat*);

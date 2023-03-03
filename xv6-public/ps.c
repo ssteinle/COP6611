@@ -5,6 +5,6 @@
 
 int main(int argv,char *args[])
 {
-	cps();
+	sps();
 	exit();
 }
