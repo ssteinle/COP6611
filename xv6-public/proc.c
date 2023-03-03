@@ -90,14 +90,6 @@ found:
   p->pid = nextpid++;
   p->priority = 5;
 
-  acquire(&tickslock);
-  p->stime = ticks;
-  release(&tickslock);
-
-  
-  p->rtime = 0;
-  p->ctime = 0;
-
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -120,6 +112,19 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  acquire(&ptable.lock);
+
+  acquire(&tickslock);
+  p->stime = ticks;
+  release(&tickslock);
+  
+  p->rtime = 0;
+  p->ctime = 0;
+
+  // cprintf("\n\nStart time: %d\n\n", p->stime);
+
+  release(&ptable.lock);
 
   return p;
 }
@@ -461,19 +466,19 @@ scheduler(void)
 
         // p->stime = 0;
 
-        uint ct = p->ctime;
-        uint rt = p->rtime;
-        uint st = p->stime;
-        int pppid = p -> pid;
-        
+        // uint ct = p->ctime;
+        // uint rt = p->rtime;
+        // // uint st = p->stime;
+        // int pppid = p -> pid;
+
         // cprintf("cpu %d, pname %s, pid %d, rtime %d\n", c->apicid, minP->name, minP->pid, minP->rtime);
         swtch(&(c->scheduler), minP->context);
         switchkvm();
 
-        cprintf("Process ID #1: %d -- ", pppid);
-        cprintf("Start time: %d -- ", st);
-        cprintf("Concurrent time: %d -- ", ct);
-        cprintf("Run time: %d -- ", rt);
+        cprintf("Process ID: %d -- ", p->pid);
+        // cprintf("Start time: %d -- ", p->stime);
+        // cprintf("Concurrent time: %d -- ", ct);
+        cprintf("Run time: %d -- ", p->rtime);
 
 
         // Process is done running for now.
@@ -505,7 +510,6 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-      p->rtime = 0;
 
       uint sched_time = time_scheduled(p->pid);
       if (sched_time == -1)
@@ -543,6 +547,7 @@ scheduler(void)
     #endif
     #endif
     #endif
+
     release(&ptable.lock);
 
   }
