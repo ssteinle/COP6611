@@ -90,7 +90,11 @@ found:
   p->pid = nextpid++;
   p->priority = 5;
 
+  acquire(&tickslock);
   p->stime = ticks;
+  release(&tickslock);
+
+  
   p->rtime = 0;
   p->ctime = 0;
 
@@ -423,11 +427,15 @@ scheduler(void)
         // ignore init and sh processes from FCFS
         if(minP != 0){
             // here I find the process with the lowest creation time (the first one that was created)
-            if(p->ctime < minP->ctime)
+            if(p->stime < minP->stime)
+            {
                 minP = p;
+            }
         }
         else
-            minP = p;
+        {
+          minP = p;
+        }
     }  
 
     if(minP != 0){
@@ -451,13 +459,13 @@ scheduler(void)
         }
         p->ctime = p->ctime + p->rtime;
 
+        // p->stime = 0;
+
         uint ct = p->ctime;
         uint rt = p->rtime;
         uint st = p->stime;
         int pppid = p -> pid;
-
-        // p->rtime = 0;
-
+        
         // cprintf("cpu %d, pname %s, pid %d, rtime %d\n", c->apicid, minP->name, minP->pid, minP->rtime);
         swtch(&(c->scheduler), minP->context);
         switchkvm();
@@ -521,7 +529,6 @@ scheduler(void)
       acquire(&tickslock);
       p->rtime = ticks;
       release(&tickslock);
-
 
       cprintf("Process ID: %d -- ", pppid);
       cprintf("Run time: %d -- ", rt);
