@@ -26,11 +26,11 @@ int main(int argc, char *argv[]) {
 	// printf(1,"c. %d made\n",getpid());
 	for(b = 0; b < 10000; b+=1)
 	    a = a + 259;
-
   printf(2, "\nMy pid: %d\n", getpid());
 	// break;
   //     }
   // }
+  while(wait() != -1);
 
   exit();
 }
