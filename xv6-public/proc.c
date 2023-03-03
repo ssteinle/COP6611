@@ -375,8 +375,6 @@ scheduler(void)
     switchuvm(p);
     p->state = RUNNING;
 
-    release(&ptable.lock);
-
     uint sched_time = time_scheduled(p->pid);
     if (sched_time == -1)
     {
@@ -386,13 +384,11 @@ scheduler(void)
 
     p->ctime = p->ctime + p->rtime;
 
-    // uint ct = p->ctime;
-    // uint rt = p->rtime;
-    // int pppid = p -> pid;
+    uint ct = p->ctime;
+    uint rt = p->rtime;
+    int pppid = p -> pid;
 
     p->rtime = 0;
-
-    acquire(&ptable.lock);
 
     //cprintf("DEFAULT: The start time of current process is %d \n", p->ctime);
 
@@ -403,9 +399,9 @@ scheduler(void)
     p->rtime = ticks;
     release(&tickslock);
 
-    // cprintf("Process ID: %d -- ", pppid);
-    // cprintf("Run time: %d -- ", rt);
-    // cprintf("Total run time: %d\n", ct);
+    cprintf("Process ID: %d -- ", pppid);
+    cprintf("Run time: %d -- ", rt);
+    cprintf("Total run time: %d\n", ct);
 
 
     // Process is done running for now.
@@ -443,14 +439,9 @@ scheduler(void)
         switchuvm(minP);
         minP->state = RUNNING;
 
-        release(&ptable.lock);
-
-
         acquire(&tickslock);
         p->rtime = ticks;
         release(&tickslock);
-
-
 
         uint sched_time = time_scheduled(p->pid);
         if (sched_time == -1)
@@ -458,30 +449,23 @@ scheduler(void)
             //print error if we want
             p->rtime = 0;
         }
-        // const int aa = p ->ctime;
-        // aa = p ->ctime;
         p->ctime = p->ctime + p->rtime;
 
-        // uint ct = p->ctime;
+        uint ct = p->ctime;
         uint rt = p->rtime;
+        uint st = p->stime;
         int pppid = p -> pid;
 
         // p->rtime = 0;
-
-        acquire(&ptable.lock);
 
         // cprintf("cpu %d, pname %s, pid %d, rtime %d\n", c->apicid, minP->name, minP->pid, minP->rtime);
         swtch(&(c->scheduler), minP->context);
         switchkvm();
 
-
-        // cprintf("Process ID: %d -- ", pppid);
-        // cprintf("Run time: %d -- ", rt);
-        // int subt;
-        // cprintf("Ticks time: %d -- ", ticks);
-        // subt = ct-;
-        // cprintf("AA time: %d -- ", aa);
-        // cprintf("Total run time: %d\n", subt);
+        cprintf("Process ID #1: %d -- ", pppid);
+        cprintf("Start time: %d -- ", st);
+        cprintf("Concurrent time: %d -- ", ct);
+        cprintf("Run time: %d -- ", rt);
 
 
         // Process is done running for now.
@@ -513,10 +497,8 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-    //   p->rtime = 0;
+      p->rtime = 0;
 
-      release(&ptable.lock);
-    
       uint sched_time = time_scheduled(p->pid);
       if (sched_time == -1)
       {
@@ -533,8 +515,6 @@ scheduler(void)
 
       p->rtime = 0;
 
-      acquire(&ptable.lock);
-
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -543,9 +523,9 @@ scheduler(void)
       release(&tickslock);
 
 
-    //   cprintf("Process ID: %d -- ", pppid);
-    //   cprintf("Run time: %d -- ", rt);
-    //   cprintf("Total run time: %d\n", ct);
+      cprintf("Process ID: %d -- ", pppid);
+      cprintf("Run time: %d -- ", rt);
+      cprintf("Total run time: %d\n", ct);
 
 
       // Process is done running for now.
@@ -855,16 +835,12 @@ fifo_position(int pid) {
     return -1;
 }
 
-
-
 int
 time_scheduled(int pid)
 {
   int r_proc = -1;
 
   struct proc *p;
-
-  acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
@@ -876,18 +852,16 @@ time_scheduled(int pid)
         uint xticks = ticks;
         release(&tickslock);
 
-        release(&ptable.lock);
-        return xticks - p->rtime;
+        r_proc = xticks - p->rtime;
+        break;
       }
       else
       {
-        release(&ptable.lock);
-        return 0;
+        r_proc = 0;
+        break;
       }
     }
   }
-
-  release(&ptable.lock);
 
   return r_proc;
 }
