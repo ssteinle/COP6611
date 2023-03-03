@@ -10,10 +10,6 @@ int main(int argc, char *argv[]) {
   int a, b;
   printf(2, "\n\n****************************************\n\n");
 
-  acquire(&tickslock);
-  uint xticks1 = ticks;
-  release(&tickslock);
-
   // g = 2;
   // a = 0;
   fork();
@@ -36,12 +32,6 @@ int main(int argc, char *argv[]) {
 	// break;
   //     }
   // }
-
-  acquire(&tickslock);
-  uint xticks = ticks - xticks1;
-  release(&tickslock);
-
-  pritnf(2, "\nMy pid: %d\n", )
 
   exit();
 }
